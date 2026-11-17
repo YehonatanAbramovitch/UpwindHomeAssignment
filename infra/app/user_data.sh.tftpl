@@ -1,0 +1,112 @@
+#!/bin/bash
+# Runs once, as root, when a new web server starts for the first time.
+# It installs the app, gives it the database password, starts it under
+# systemd, and starts the CloudWatch agent for memory, disk and logs.
+# Its output is in /var/log/cloud-init-output.log on the server.
+#
+# Code version: ${code_version}
+# (A code change changes this line, which makes the Auto Scaling group replace
+# the servers one at a time.)
+
+set -euo pipefail
+
+# --- Packages ---------------------------------------------------------------
+dnf install -y python3.11 python3.11-pip amazon-cloudwatch-agent
+# psql, to look inside the database during troubleshooting (via Session Manager).
+dnf install -y postgresql16 || dnf install -y postgresql15
+
+# --- A separate, non-root user for the app ----------------------------------
+useradd --system --home-dir /opt/phishing --shell /sbin/nologin phishing
+mkdir -p /opt/phishing/app /var/log/phishing /etc/phishing
+
+# --- The code, from the private S3 bucket -----------------------------------
+aws s3 cp --recursive --region ${region} "s3://${code_bucket}/app/" /opt/phishing/app/
+python3.11 -m venv /opt/phishing/venv
+/opt/phishing/venv/bin/pip install --no-cache-dir -r /opt/phishing/app/requirements.txt
+chown -R phishing:phishing /opt/phishing /var/log/phishing
+
+# --- The database connection ------------------------------------------------
+# The password is read from Parameter Store with the server's own role, and is
+# written only to a file that root alone can read. systemd reads it and passes
+# it to the app; the app's code is the same as on a laptop.
+DATABASE_PASSWORD=$(aws ssm get-parameter --region ${region} \
+  --name "${database_password_param}" --with-decryption \
+  --query Parameter.Value --output text)
+
+umask 077
+cat > /etc/phishing/app.env <<EOF
+DATABASE_URL=postgresql+psycopg://${database_user}:$${DATABASE_PASSWORD}@${database_host}:${database_port}/${database_name}?sslmode=require
+EOF
+umask 022
+unset DATABASE_PASSWORD
+
+# --- The app, under systemd -------------------------------------------------
+# gunicorn runs 2 workers; systemd restarts the app within seconds if it stops.
+cat > /etc/systemd/system/phishing-detector.service <<'EOF'
+[Unit]
+Description=Phishing detector web app (gunicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=phishing
+Group=phishing
+WorkingDirectory=/opt/phishing/app
+EnvironmentFile=/etc/phishing/app.env
+ExecStart=/opt/phishing/venv/bin/gunicorn \
+  --workers 2 \
+  --bind 0.0.0.0:${app_port} \
+  --timeout 60 \
+  --capture-output \
+  --access-logfile /var/log/phishing/access.log \
+  --error-logfile /var/log/phishing/app.log \
+  "web.app:create_app()"
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now phishing-detector.service
+
+# --- CloudWatch agent: memory and disk metrics, and the app logs ------------
+cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'EOF'
+{
+  "metrics": {
+    "namespace": "${project}",
+    "append_dimensions": {
+      "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",
+      "InstanceId": "$${aws:InstanceId}"
+    },
+    "aggregation_dimensions": [["AutoScalingGroupName"]],
+    "metrics_collected": {
+      "mem": { "measurement": ["mem_used_percent"] },
+      "disk": { "measurement": ["used_percent"], "resources": ["/"] }
+    }
+  },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/phishing/app.log",
+            "log_group_name": "${log_group}",
+            "log_stream_name": "{instance_id}/app"
+          },
+          {
+            "file_path": "/var/log/phishing/access.log",
+            "log_group_name": "${log_group}",
+            "log_stream_name": "{instance_id}/access"
+          }
+        ]
+      }
+    }
+  }
+}
+EOF
+
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json

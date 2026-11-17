@@ -12,6 +12,11 @@ output "servers_security_group_id" {
   value = aws_security_group.servers.id
 }
 
+output "database_identifier" {
+  description = "RDS instance name, for the dashboard's database graphs"
+  value       = aws_db_instance.main.identifier
+}
+
 output "database_address" {
   description = "DNS name of the database, reachable only from inside the VPC"
   value       = aws_db_instance.main.address

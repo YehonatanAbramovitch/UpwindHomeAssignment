@@ -3,3 +3,5 @@
 flask==3.0.3
 sqlalchemy==2.0.36
 psycopg[binary]==3.2.3
+# Runs the app on the EC2 instances (Linux only). Locally, use `flask run`.
+gunicorn==23.0.0
