@@ -1,0 +1,11 @@
+From: Parcel Service <notify@parcel-update.top>
+To: dana.levi@example.com
+Subject: Your parcel is waiting for delivery
+
+Hello,
+
+Your parcel could not be delivered because of an unpaid delivery fee of $1.99. 
+Please pay the fee to schedule a new delivery date:
+https://bit.ly/3xParcel
+    
+Parcel Service

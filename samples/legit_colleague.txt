@@ -1,0 +1,14 @@
+From: Dana Levi <dana.levi@example.com>
+To: team@example.com
+Subject: Notes from today's planning meeting
+Attachments: planning-notes.pdf
+
+Hi everyone,
+
+Thanks for joining the planning meeting today. The notes are attached,
+and the task list is on the team page:
+https://docs.example.com/team/planning
+
+Let me know if I missed anything.
+
+Dana

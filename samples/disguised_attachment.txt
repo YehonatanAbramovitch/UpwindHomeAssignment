@@ -1,0 +1,11 @@
+From: HR Department <hr@example-payroll.com>
+To: dana.levi@example.com
+Subject: Your pay slip for November
+Attachments: payslip_nov‮xslx.exe
+
+Hello,
+
+Your pay slip for November is attached.
+Please open it and check that your details are correct.
+
+HR Department

@@ -1,0 +1,12 @@
+From: IT Monitoring <alerts@example.com>
+To: noc-team@example.com
+Subject: Disk usage on db-01 reached 85%
+
+Hi team,
+
+Disk usage on db-01 reached 85% at 14:05. The dashboard is here:
+http://10.0.0.5:3000/d/disk-usage
+
+Please check it during your shift.
+
+IT Monitoring

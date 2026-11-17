@@ -1,0 +1,2 @@
+# Needed only to run the automated tests: python -m pip install -r requirements-dev.txt
+pytest==8.3.3

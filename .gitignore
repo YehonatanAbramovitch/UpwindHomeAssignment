@@ -1,0 +1,34 @@
+# Personal working notes, not part of the submission
+design-notes.md
+CLAUDE.md
+
+# Python: files Python and pytest create by themselves
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Local database with the scan history (SQLite)
+*.db
+*.sqlite3
+
+# Terraform: downloaded providers, state and variable files.
+# The state can hold sensitive details about the infrastructure, and variable
+# files can hold passwords, so they must never reach Git.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+crash.log
+
+# Secrets and credentials, just in case
+.env
+*.pem
+*.key
+
+# Editor and operating system files
+.vscode/
+Thumbs.db
+desktop.ini

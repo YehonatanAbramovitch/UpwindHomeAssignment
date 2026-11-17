@@ -1,0 +1,14 @@
+From: Example Shop <deals@shop.example.com>
+To: dana.levi@example.com
+Subject: Last chance: 20% off ends today
+
+Hi Dana,
+
+Our winter sale ends tonight at midnight. Act now and get 20% off
+everything in the store, plus a free gift with every order over $50.
+
+See the sale:
+https://shop.example.com/winter-sale
+
+You are receiving this email because you signed up for our newsletter.
+Unsubscribe: https://shop.example.com/unsubscribe
