@@ -4,8 +4,7 @@
 <h1>Scan an email</h1>
 
 <form method="post" action="{{ url_for('scan') }}" enctype="multipart/form-data" class="card">
-  {# Only the "Choose File" button opens the file dialog: the title is plain text
-     (aria-label keeps the field described for screen readers). #}
+  {# Only the "Choose File" button opens the file dialog: the title is plain text (aria-label keeps the field described for screen readers). #}
   <p class="field-title">Upload an email file (.eml or .txt, up to {{ max_upload_mb }} MB)</p>
   <div class="field">
     <input type="file" id="email_file" name="email_file" accept=".eml,.txt"
@@ -79,7 +78,7 @@
   </section>
 
   <section class="card">
-    <h2 class="verdict {{ colour }}">{{ result.verdict }}</h2>
+    <h2 class="verdict {{ color }}">{{ result.verdict }}</h2>
     <p class="score">
       Score: {{ result.score }} / {{ max_score }}
       {% if points_detected > max_score %}

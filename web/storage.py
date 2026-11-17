@@ -4,8 +4,8 @@ The same code works with SQLite on a laptop and with PostgreSQL on AWS (RDS).
 Only the connection string changes, and it comes from the DATABASE_URL
 environment variable, so the database password is never written in the code.
 
-This is the only file that talks to the database. Both the web app and
-`cli.py --history` use it.
+This is the only file that talks to the database. 
+Both the web app and `cli.py --history` use it.
 """
 
 import json
@@ -66,16 +66,16 @@ class Storage:
         connect_args = {}
         if url.startswith("postgresql"):
             connect_args["connect_timeout"] = CONNECT_TIMEOUT_SECONDS
-        # pool_pre_ping checks a connection before using it, so a database that
-        # restarted does not leave the app holding broken connections.
+        # pool_pre_ping checks a connection before using it, 
+        # so a database that restarted does not leave the app holding broken connections.
         self.engine = create_engine(url, pool_pre_ping=True, connect_args=connect_args)
         self._table_ready = False
 
     def scan(self, raw: Union[bytes, str]) -> ScanResult:
         """Scan an email with the history checks, and save the scan.
 
-        Raises HistoryUnavailable if the database is down. The caller then
-        scans without history (detector.analyzer.analyze) and shows a warning.
+        Raises HistoryUnavailable if the database is down. 
+        The caller then scans without history (detector.analyzer.analyze) and shows a warning.
         """
         flagged_senders, flagged_domains = self.flagged()
         result = analyze(raw, frozenset(flagged_senders), frozenset(flagged_domains))

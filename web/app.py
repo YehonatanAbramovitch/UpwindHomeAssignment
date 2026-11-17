@@ -20,12 +20,11 @@ MAX_UPLOAD_MB = 35  # Gmail allows 25 MB of attachments, about 34 MB inside the 
 ALLOWED_EXTENSIONS = (".eml", ".txt")
 BODY_SHOWN_CHARACTERS = 20_000  # a huge email is cut on the page, but scanned in full
 
-# The colour of each verdict on the page.
-VERDICT_COLOURS = {LIKELY_LEGITIMATE: "green", SUSPICIOUS: "orange", LIKELY_PHISHING: "red"}
+# The color of each verdict on the page.
+VERDICT_COLORS = {LIKELY_LEGITIMATE: "green", SUSPICIOUS: "orange", LIKELY_PHISHING: "red"}
 
 HISTORY_WARNING = (
-    "History is unavailable right now. The scan ran without the history checks "
-    "and was not saved."
+    "History is unavailable right now. The scan ran without the history checks and was not saved."
 )
 
 log = logging.getLogger(__name__)
@@ -74,7 +73,7 @@ def create_app(database_url: Optional[str] = None) -> Flask:
             "scan.html",
             result=result,
             warning=warning,
-            colour=VERDICT_COLOURS[result.verdict],
+            color=VERDICT_COLORS[result.verdict],
             body=result.body[:BODY_SHOWN_CHARACTERS],
             body_cut=len(result.body) > BODY_SHOWN_CHARACTERS,
             points_detected=sum(finding.points for finding in result.findings),
@@ -87,7 +86,7 @@ def create_app(database_url: Optional[str] = None) -> Flask:
             rows = storage.recent()
         except HistoryUnavailable:
             return render_template("history.html", unavailable=True), 503
-        return render_template("history.html", rows=rows, colours=VERDICT_COLOURS)
+        return render_template("history.html", rows=rows, colors=VERDICT_COLORS)
 
     @app.get("/health")
     def health():

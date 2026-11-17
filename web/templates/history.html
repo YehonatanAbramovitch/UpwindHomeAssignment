@@ -21,7 +21,7 @@
           <td>{{ (row.sender | printable) or "(unknown)" }}</td>
           <td>{{ (row.subject | printable) or "(no subject)" }}</td>
           <td>{{ row.score }}</td>
-          <td class="verdict {{ colours[row.verdict] }}">{{ row.verdict }}</td>
+          <td class="verdict {{ colors[row.verdict] }}">{{ row.verdict }}</td>
         </tr>
       {% endfor %}
     </tbody>
