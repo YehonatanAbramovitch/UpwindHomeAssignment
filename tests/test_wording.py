@@ -16,6 +16,11 @@ def wording_rules(subject, body):
     ("Sale ends today", "Last chance! Act now.", {"wording_time_pressure"}),
     ("FINAL NOTICE", "URGENT!!! PAY NOW", {"wording_time_pressure", "wording_shouting"}),
     ("PDF", "PDF PDF PDF", set()),  # the same capital word three times is not shouting
+    # Capital letters inside a link are part of an address, not shouting.
+    ("Hi", "Watch https://youtube.com/channel/UCdg-AA and https://x.com/ABC/DEF", set()),
+    ("Hi", "WATCH THIS NOW https://youtube.com/channel/UCdg-AA", {"wording_shouting"}),
+    # AM and PM are times, not shouting: only two real capital words are left.
+    ("Re: Notes", "On Thu at 11:23 AM, until 5 PM, about the BPP and the CLASS", set()),
     ("Hi", "I wonder about it", set()),  # "you won" must not match inside "wonder"
     ("Hi", "Congratulations, you won!", {"wording_prize_or_refund"}),
     ("Refund processed", "Your refund was processed.", {"wording_prize_or_refund"}),

@@ -20,7 +20,7 @@ def parse_email(raw: Union[bytes, str]) -> ParsedEmail:
     """Extract the sender, subject, body text, links and attachment names."""
     if isinstance(raw, str):
         raw = raw.encode("utf-8")
-    message = message_from_bytes(raw, policy=policy.default)
+    message = message_from_bytes(_tidy_start(raw), policy=policy.default)
 
     sender_name, sender_address = parseaddr(_header(message, "From"))
     _, reply_to = parseaddr(_header(message, "Reply-To"))
@@ -62,6 +62,32 @@ def parse_email(raw: Union[bytes, str]) -> ParsedEmail:
         attachments=attachments,
         auth_results=_header(message, "Authentication-Results").lower(),
     )
+
+
+def _tidy_start(raw: bytes) -> bytes:
+    """Fix the start of a hand-written file, so its headers are still read.
+
+    Three things at the start of a file hide every header from the email
+    parser, and all three happen easily when a file is written by hand:
+    - a byte order mark, which Notepad adds when it saves as UTF-8;
+    - empty lines before the first header (an empty line means "headers end here");
+    - spaces before the headers (a line that starts with a space means
+      "continuation of the previous header").
+    A real .eml file never starts with any of them, so it is not affected.
+    """
+    raw = raw.removeprefix(b"\xef\xbb\xbf")
+    lines = raw.splitlines(keepends=True)
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    # Only when the very first line is indented, the whole header block was
+    # indented by hand. Indented lines further down are real continuation
+    # lines of long headers, and must stay as they are.
+    if lines and lines[0][:1] in (b" ", b"\t"):
+        for number, line in enumerate(lines):
+            if not line.strip():  # the empty line that ends the headers
+                break
+            lines[number] = line.lstrip(b" \t")
+    return b"".join(lines)
 
 
 def _header(message, name: str) -> str:

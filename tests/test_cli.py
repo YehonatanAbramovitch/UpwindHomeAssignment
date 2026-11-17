@@ -41,6 +41,18 @@ def test_empty_file(monkeypatch, capsys, tmp_path):
     assert "empty" in output.err
 
 
+def test_note_when_there_are_no_headers(monkeypatch, capsys, tmp_path):
+    body_only = tmp_path / "body.txt"
+    body_only.write_text("Dear customer, verify your password.\n")
+    _, output = run_cli(monkeypatch, capsys, str(body_only))
+    assert "no email headers found" in output.out
+
+
+def test_no_note_when_there_is_a_sender(monkeypatch, capsys):
+    _, output = run_cli(monkeypatch, capsys, str(SAMPLES / "legit_colleague.txt"))
+    assert "no email headers found" not in output.out
+
+
 def test_long_body_is_cut_but_fully_scanned(monkeypatch, capsys, tmp_path):
     body = "\n".join(f"line {number}" for number in range(40)) + "\nhttps://bit.ly/late-link\n"
     long_email = tmp_path / "long.txt"

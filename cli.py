@@ -43,6 +43,7 @@ def format_report(path: Path, result: ScanResult) -> str:
         "====================",
         f"File:     {path}",
         f"From:     {printable(result.sender) or '(unknown)'}",
+        *_no_headers_note(result),
         f"Subject:  {printable(result.subject) or '(no subject)'}",
         "",
         "Email content",
@@ -60,6 +61,13 @@ def format_report(path: Path, result: ScanResult) -> str:
         lines.append(f"  [+{finding.points}] {finding.indicator}: {finding.description}")
         lines.extend(f"          - {printable(item)}" for item in finding.evidence)
     return "\n".join(lines)
+
+
+def _no_headers_note(result: ScanResult) -> list[str]:
+    """Explain a lower score when the file has no sender, so it is not read as a miss."""
+    if result.sender:
+        return []
+    return ["          Note: no email headers found, so the sender checks were skipped."]
 
 
 def _cap_note(result: ScanResult) -> str:

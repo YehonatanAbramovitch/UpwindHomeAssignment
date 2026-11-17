@@ -203,6 +203,9 @@ WORDING_PHRASES = {
 # "Shouting" style: at least this many words written entirely in capital letters, or a run of this many exclamation marks.
 SHOUTING_MIN_CAPITAL_WORDS = 3
 SHOUTING_MIN_EXCLAMATION_RUN = 3
+# Capital words that are never shouting. Gmail adds the time ("11:23 AM") above
+# every quoted reply, so they appear in many ordinary emails.
+SHOUTING_IGNORED_WORDS = {"AM", "PM"}
 
 # --- Attachments ------------------------------------------------------------
 # Files that run code when opened: programs, scripts and shortcuts.

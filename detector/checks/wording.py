@@ -8,6 +8,7 @@ import re
 
 from detector import config, domains
 from detector.models import Finding, ParsedEmail
+from detector.parser import URL_PATTERN
 
 INDICATOR = "Suspicious wording"
 
@@ -50,9 +51,12 @@ def _shouting_evidence(text: str) -> list[str]:
     Shouting is at least SHOUTING_MIN_CAPITAL_WORDS different words written
     entirely in capital letters, or a run of SHOUTING_MIN_EXCLAMATION_RUN
     exclamation marks. One or two capital words are usually acronyms (PDF, NASA).
+    Links are removed first: ".../channel/UCdg-AA" is part of an address, not shouting.
     """
+    text = URL_PATTERN.sub(" ", text)
     evidence = []
-    capital_words = list(dict.fromkeys(CAPITAL_WORD_PATTERN.findall(text)))  # unique, in order
+    found = [word for word in CAPITAL_WORD_PATTERN.findall(text) if word not in config.SHOUTING_IGNORED_WORDS]
+    capital_words = list(dict.fromkeys(found))  # unique, in order
     if len(capital_words) >= config.SHOUTING_MIN_CAPITAL_WORDS:
         evidence.append("capital words: " + ", ".join(capital_words[:5]))
     if "!" * config.SHOUTING_MIN_EXCLAMATION_RUN in text:

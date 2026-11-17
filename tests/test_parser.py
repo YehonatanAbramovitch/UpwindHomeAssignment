@@ -48,6 +48,31 @@ def test_hebrew_email():
     assert "שלום" in email.body
 
 
+HEADERS = "From: PayPal <x@paypa1.com>\nSubject: Verify\n\nbody text\n"
+
+
+def test_empty_lines_before_the_headers():
+    assert parse_email("\n\n" + HEADERS).sender_address == "x@paypa1.com"
+
+
+def test_spaces_before_the_headers():
+    indented = "  From: PayPal <x@paypa1.com>\n  Subject: Verify\n\nbody text\n"
+    email = parse_email(indented)
+    assert email.sender_address == "x@paypa1.com"
+    assert email.subject == "Verify"
+
+
+def test_byte_order_mark_from_notepad():
+    assert parse_email(b"\xef\xbb\xbf" + HEADERS.encode()).sender_address == "x@paypa1.com"
+
+
+def test_long_header_continued_on_the_next_line_is_kept():
+    # In a real .eml file, a long header continues on a line that starts with
+    # a space. That must still be read as one header.
+    raw = "From: PayPal <x@paypa1.com>\nSubject: Your account\n  has been limited\n\nbody\n"
+    assert parse_email(raw).subject.split() == ["Your", "account", "has", "been", "limited"]
+
+
 def test_empty_input_does_not_crash():
     email = parse_email(b"")
     assert email.body == ""
