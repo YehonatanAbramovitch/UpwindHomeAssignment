@@ -30,5 +30,6 @@ crash.log
 
 # Editor and operating system files
 .vscode/
+.claude/
 Thumbs.db
 desktop.ini

@@ -1,0 +1,119 @@
+/* One small style sheet, no external libraries: nothing is loaded from the internet. */
+
+:root {
+  --text: #1f2933;
+  --muted: #616e7c;
+  --background: #f5f7fa;
+  --card: #ffffff;
+  --border: #d9e2ec;
+  --accent: #2f5fd0;
+  --green: #1e7f4f;
+  --orange: #b25e09;
+  --red: #c0262d;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  background: var(--background);
+  line-height: 1.5;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand { font-weight: 700; }
+nav a { margin-left: 16px; color: var(--accent); text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+
+main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+
+h1 { font-size: 1.6rem; margin-top: 0; }
+h2 { font-size: 1.15rem; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+/* inline-block: only the words of a label are clickable, not the whole row. */
+label { display: inline-block; font-weight: 600; margin-bottom: 6px; }
+.field { margin-bottom: 4px; }
+.field-title { font-weight: 600; margin: 0 0 6px; }
+
+/* Only the button of the file field reacts to clicks, not the "No file
+   chosen" text next to it. */
+input[type="file"] { pointer-events: none; }
+input[type="file"]::file-selector-button { pointer-events: auto; cursor: pointer; }
+textarea { width: 100%; font-family: Consolas, monospace; font-size: 0.9rem; padding: 8px; }
+.or { color: var(--muted); margin: 12px 0; }
+
+button {
+  margin-top: 14px;
+  padding: 8px 24px;
+  font-size: 1rem;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.message { padding: 10px 14px; border-radius: 6px; }
+.error { background: #fde8e8; color: var(--red); }
+.warning { background: #fff4e5; color: var(--orange); }
+.note { display: block; color: var(--muted); font-size: 0.9rem; }
+
+dl { display: grid; grid-template-columns: 90px 1fr; gap: 4px 12px; }
+dt { font-weight: 600; }
+dd { margin: 0; overflow-wrap: anywhere; }
+
+/* The email is shown in a box of fixed height that scrolls. */
+.email-body {
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.plain-list { margin: 0; padding-left: 20px; overflow-wrap: anywhere; }
+
+.verdict { font-weight: 700; }
+.green { color: var(--green); }
+.orange { color: var(--orange); }
+.red { color: var(--red); }
+h2.verdict { font-size: 1.5rem; margin-bottom: 4px; }
+.score { margin-top: 0; font-size: 1.1rem; }
+
+.findings { padding-left: 0; list-style: none; }
+.findings > li { margin-bottom: 12px; }
+.points {
+  display: inline-block;
+  min-width: 42px;
+  margin-right: 6px;
+  font-weight: 700;
+  color: var(--red);
+}
+.evidence { margin: 4px 0 0 48px; color: var(--muted); overflow-wrap: anywhere; }
+
+table { width: 100%; border-collapse: collapse; background: var(--card); }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+td { overflow-wrap: anywhere; }
+
+footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 24px; }

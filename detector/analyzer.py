@@ -47,7 +47,18 @@ def analyze(
         score=score,
         verdict=verdict(score),
         findings=findings,
+        links=_unique(email.links),
+        attachments=_unique(email.attachments),
     )
+
+
+def _unique(items: list) -> list:
+    """Each item once, in its first order: an email often repeats the same link."""
+    unique = []
+    for item in items:
+        if item not in unique:
+            unique.append(item)
+    return unique
 
 
 def _sender_line(name: str, address: str) -> str:

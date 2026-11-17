@@ -41,6 +41,22 @@ def test_empty_file(monkeypatch, capsys, tmp_path):
     assert "empty" in output.err
 
 
+def test_report_lists_attachments_and_links(monkeypatch, capsys):
+    _, output = run_cli(monkeypatch, capsys, str(SAMPLES / "phishing_paypal.txt"))
+    attachments = output.out.split("Attachments")[1].split("Links")[0]
+    links = output.out.split("Links")[1].split("Verdict:")[0]
+    assert "PayPal_Invoice.pdf.exe" in attachments
+    assert "http://203.0.113.45/paypal/login" in links
+    assert "https://paypal.com.account-verify.xyz/signin" in links
+
+
+def test_report_shows_none_without_links_or_attachments(monkeypatch, capsys, tmp_path):
+    plain = tmp_path / "plain.txt"
+    plain.write_text("From: a@example.com\nSubject: Hi\n\nHello.\n")
+    _, output = run_cli(monkeypatch, capsys, str(plain))
+    assert output.out.count("(none)") == 2
+
+
 def test_note_when_there_are_no_headers(monkeypatch, capsys, tmp_path):
     body_only = tmp_path / "body.txt"
     body_only.write_text("Dear customer, verify your password.\n")
@@ -59,5 +75,8 @@ def test_long_body_is_cut_but_fully_scanned(monkeypatch, capsys, tmp_path):
     long_email.write_text("From: a@example.com\nSubject: Long\n\n" + body)
     _, output = run_cli(monkeypatch, capsys, str(long_email))
     assert "more lines)" in output.out
-    assert "bit.ly/late-link" not in output.out.split("Verdict:")[0]  # not shown in the preview
-    assert "URL shortener" in output.out  # but found by the scan
+    content = output.out.split("Email content")[1].split("Attachments")[0]
+    links = output.out.split("Links")[1].split("Verdict:")[0]
+    assert "bit.ly/late-link" not in content  # cut from the content preview,
+    assert "bit.ly/late-link" in links  # but still listed under Links,
+    assert "URL shortener" in output.out  # and found by the scan

@@ -2,6 +2,10 @@
 
 Usage:
     python cli.py samples/phishing_paypal.txt
+    python cli.py --history samples/phishing_paypal.txt
+
+Without --history the scan changes nothing. With it, the scan uses and saves
+the same history as the web app (DATABASE_URL, or a local history.db).
 """
 
 import argparse
@@ -10,7 +14,7 @@ from pathlib import Path
 
 from detector import config
 from detector.analyzer import analyze
-from detector.models import ScanResult, printable
+from detector.models import Link, ScanResult, printable
 
 BODY_PREVIEW_LINES = 15  # a long email shows only its first lines
 
@@ -21,7 +25,12 @@ def main() -> int:
 
     arguments = argparse.ArgumentParser(description="Scan an email file for signs of phishing.")
     arguments.add_argument("file", help="the email file to scan (.txt or .eml)")
-    path = Path(arguments.parse_args().file)
+    arguments.add_argument(
+        "--history", action="store_true",
+        help="use and save the scan history, the same one the web app uses",
+    )
+    options = arguments.parse_args()
+    path = Path(options.file)
 
     try:
         raw = path.read_bytes()
@@ -32,8 +41,24 @@ def main() -> int:
         print(f"{path} is empty, there is nothing to scan.", file=sys.stderr)
         return 1
 
-    print(format_report(path, analyze(raw)))
+    if options.history:
+        result = _scan_with_history(raw)
+    else:
+        result = analyze(raw)
+    print(format_report(path, result))
     return 0
+
+
+def _scan_with_history(raw: bytes) -> ScanResult:
+    """Scan with the history checks and save the scan, or scan without them."""
+    # Imported here so that a plain scan does not need the database packages.
+    from web.storage import HistoryUnavailable, Storage
+
+    try:
+        return Storage().scan(raw)
+    except HistoryUnavailable:
+        print("History is unavailable: scanning without the history checks.", file=sys.stderr)
+        return analyze(raw)
 
 
 def format_report(path: Path, result: ScanResult) -> str:
@@ -50,6 +75,14 @@ def format_report(path: Path, result: ScanResult) -> str:
         "-------------",
         *_body_preview(result.body),
         "",
+        "Attachments",
+        "-----------",
+        *_listed([printable(name) for name in result.attachments]),
+        "",
+        "Links",
+        "-----",
+        *_listed([_link_line(link) for link in result.links]),
+        "",
         f"Verdict:  {result.verdict.upper()}",
         f"Score:    {result.score} / {config.MAX_SCORE}{_cap_note(result)}",
         "",
@@ -61,6 +94,27 @@ def format_report(path: Path, result: ScanResult) -> str:
         lines.append(f"  [+{finding.points}] {finding.indicator}: {finding.description}")
         lines.extend(f"          - {printable(item)}" for item in finding.evidence)
     return "\n".join(lines)
+
+
+LISTED_ITEMS = 20  # a long list shows only its first items
+
+
+def _listed(items: list[str]) -> list[str]:
+    """One line per item, or "(none)"; a long list is cut with a count of the rest."""
+    if not items:
+        return ["(none)"]
+    lines = [f"  {item}" for item in items[:LISTED_ITEMS]]
+    if len(items) > LISTED_ITEMS:
+        lines.append(f"  ... ({len(items) - LISTED_ITEMS} more)")
+    return lines
+
+
+def _link_line(link: Link) -> str:
+    """The address, and the text the reader sees when it is different from it."""
+    url = printable(link.url)
+    if link.text and link.text != link.url:
+        return f'"{printable(link.text)}" -> {url}'
+    return url
 
 
 def _no_headers_note(result: ScanResult) -> list[str]:

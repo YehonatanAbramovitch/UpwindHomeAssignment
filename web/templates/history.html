@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}History - Phishing Detector{% endblock %}
+
+{% block content %}
+<h1>Scan history</h1>
+
+{% if unavailable %}
+  <p class="message warning">History is unavailable right now. Scanning still works.</p>
+{% elif not rows %}
+  <p class="card">No scans yet.</p>
+{% else %}
+  <table>
+    <thead>
+      <tr><th>Time (UTC)</th><th>Sender</th><th>Subject</th><th>Score</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.scanned_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td>{{ (row.sender | printable) or "(unknown)" }}</td>
+          <td>{{ (row.subject | printable) or "(no subject)" }}</td>
+          <td>{{ row.score }}</td>
+          <td class="verdict {{ colours[row.verdict] }}">{{ row.verdict }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}

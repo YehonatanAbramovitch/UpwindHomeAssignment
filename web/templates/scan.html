@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Scan an email</h1>
+
+<form method="post" action="{{ url_for('scan') }}" enctype="multipart/form-data" class="card">
+  {# Only the "Choose File" button opens the file dialog: the title is plain text
+     (aria-label keeps the field described for screen readers). #}
+  <p class="field-title">Upload an email file (.eml or .txt, up to {{ max_upload_mb }} MB)</p>
+  <div class="field">
+    <input type="file" id="email_file" name="email_file" accept=".eml,.txt"
+           aria-label="Upload an email file">
+  </div>
+
+  <p class="or">or</p>
+
+  <label for="email_text">Paste the email content (in Gmail: Show original, then Copy to clipboard)</label>
+  <div class="field">
+    <textarea id="email_text" name="email_text" rows="8"
+              placeholder="From: ...&#10;Subject: ...&#10;&#10;The body of the email"></textarea>
+  </div>
+
+  <button type="submit">Scan</button>
+</form>
+
+{% if error %}
+  <p class="message error">{{ error }}</p>
+{% endif %}
+
+{% if warning %}
+  <p class="message warning">{{ warning }}</p>
+{% endif %}
+
+{% if result %}
+  <section class="card">
+    <h2>Email details</h2>
+    <dl>
+      <dt>From</dt>
+      <dd>
+        {{ (result.sender | printable) or "(unknown)" }}
+        {% if not result.sender %}
+          <span class="note">No email headers found, so the sender checks were skipped.</span>
+        {% endif %}
+      </dd>
+      <dt>Subject</dt>
+      <dd>{{ (result.subject | printable) or "(no subject)" }}</dd>
+    </dl>
+
+    <h2>Email content</h2>
+    {# Shown as plain text: links in it cannot be clicked. #}
+    <pre class="email-body">{{ body | printable }}</pre>
+    {% if body_cut %}
+      <p class="note">The email is long: only the beginning is shown here, but all of it was scanned.</p>
+    {% endif %}
+
+    <h2>Attachments</h2>
+    {% if result.attachments %}
+      <ul class="plain-list">
+        {% for name in result.attachments %}<li>{{ name | printable }}</li>{% endfor %}
+      </ul>
+    {% else %}
+      <p class="note">None.</p>
+    {% endif %}
+
+    <h2>Links</h2>
+    {# Plain text, never clickable. A link text that differs from the address is shown too. #}
+    {% if result.links %}
+      <ul class="plain-list">
+        {% for link in result.links %}
+          <li>
+            {% if link.text and link.text != link.url %}"{{ link.text | printable }}" &rarr; {% endif %}
+            {{ link.url | printable }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="note">None.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2 class="verdict {{ colour }}">{{ result.verdict }}</h2>
+    <p class="score">
+      Score: {{ result.score }} / {{ max_score }}
+      {% if points_detected > max_score %}
+        <span class="note">({{ points_detected }} points detected, capped at {{ max_score }})</span>
+      {% endif %}
+    </p>
+
+    <h2>Detected indicators</h2>
+    {% if result.findings %}
+      <ul class="findings">
+        {% for finding in result.findings %}
+          <li>
+            <span class="points">+{{ finding.points }}</span>
+            <strong>{{ finding.indicator }}:</strong> {{ finding.description }}
+            <ul class="evidence">
+              {% for item in finding.evidence %}
+                <li>{{ item | printable }}</li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>None.</p>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}

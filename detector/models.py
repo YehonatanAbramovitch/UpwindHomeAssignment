@@ -63,6 +63,10 @@ class ScanResult:
     score: int
     verdict: str
     findings: list[Finding]
+    # Shown to the user next to the content: every link and attached file,
+    # also the ones that did not trigger any finding.
+    links: list[Link] = field(default_factory=list)
+    attachments: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return asdict(self)
