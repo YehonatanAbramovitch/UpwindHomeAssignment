@@ -3,7 +3,9 @@
 variable "region" {
   description = "AWS region for everything in the project."
   type        = string
-  default     = "us-east-1"
+  # The account's project only allows this region (a service control policy
+  # denies the others), so everything runs in Stockholm.
+  default = "eu-north-1"
 }
 
 variable "project" {
@@ -15,7 +17,7 @@ variable "project" {
 variable "availability_zones" {
   description = "Two Availability Zones: one server and one subnet of each kind in each."
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"]
+  default     = ["eu-north-1a", "eu-north-1b"]
 }
 
 variable "alert_email" {

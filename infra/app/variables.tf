@@ -3,7 +3,7 @@
 variable "region" {
   description = "AWS region; must be the same as in infra/base."
   type        = string
-  default     = "us-east-1"
+  default     = "eu-north-1"
 }
 
 variable "project" {
