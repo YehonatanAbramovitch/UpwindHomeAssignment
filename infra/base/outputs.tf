@@ -42,3 +42,13 @@ output "database_password_parameter" {
 output "database_password_parameter_arn" {
   value = aws_ssm_parameter.database_password.arn
 }
+
+output "alerts_topic_arn" {
+  description = "SNS topic that the CloudWatch alarms send their emails to"
+  value       = aws_sns_topic.alerts.arn
+}
+
+output "log_group_name" {
+  description = "CloudWatch Logs group that the web servers write to"
+  value       = aws_cloudwatch_log_group.app.name
+}

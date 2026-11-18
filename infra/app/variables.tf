@@ -12,11 +12,6 @@ variable "project" {
   default     = "phishing-detector"
 }
 
-variable "alert_email" {
-  description = "Email address for the CloudWatch alarms. Set it in terraform.tfvars (not in Git)."
-  type        = string
-}
-
 variable "instance_type" {
   description = "Size of the two web servers."
   type        = string
@@ -44,10 +39,4 @@ variable "health_check_unhealthy_threshold" {
 variable "health_check_healthy_threshold" {
   type    = number
   default = 2
-}
-
-variable "log_retention_days" {
-  description = "How long CloudWatch keeps the app logs."
-  type        = number
-  default     = 30
 }

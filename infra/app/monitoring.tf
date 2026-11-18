@@ -1,25 +1,11 @@
-# Monitoring: where the logs go, two alarms by email, and one dashboard that
-# answers the assignment's questions: are the servers healthy, how much CPU
-# and memory they use, how many requests reach the load balancer, whether
-# they succeed or fail, and where the app logs are.
-
-resource "aws_cloudwatch_log_group" "app" {
-  name              = "/${var.project}/app"
-  retention_in_days = var.log_retention_days # not "forever", the AWS default
-}
+# Monitoring: two alarms by email, and one dashboard that answers the
+# assignment's questions: are the servers healthy, how much CPU and memory
+# they use, how many requests reach the load balancer, whether they succeed
+# or fail, and where the app logs are.
+# The log group (logs.tf) and the email channel of the alarms (alerts.tf) are
+# in infra/base, so they outlive this part when it is destroyed.
 
 # --- Alarms, by email -------------------------------------------------------
-
-resource "aws_sns_topic" "alerts" {
-  name = "${var.project}-alerts"
-}
-
-# AWS sends a confirmation email first: the link in it must be clicked once.
-resource "aws_sns_topic_subscription" "alerts_email" {
-  topic_arn = aws_sns_topic.alerts.arn
-  protocol  = "email"
-  endpoint  = var.alert_email
-}
 
 locals {
   alb_dimensions = {
@@ -42,8 +28,8 @@ resource "aws_cloudwatch_metric_alarm" "healthy_servers" {
   comparison_operator = "LessThanThreshold"
   threshold           = 2
   treat_missing_data  = "breaching" # no data at all is also a problem
-  alarm_actions       = [aws_sns_topic.alerts.arn]
-  ok_actions          = [aws_sns_topic.alerts.arn]
+  alarm_actions       = [local.base.alerts_topic_arn]
+  ok_actions          = [local.base.alerts_topic_arn]
 }
 
 # The app itself returns errors (5xx), even though the servers are up.
@@ -61,8 +47,8 @@ resource "aws_cloudwatch_metric_alarm" "server_errors" {
   # really wrong (a bug, or the database is unavailable).
   threshold          = 0
   treat_missing_data = "notBreaching" # no errors reported means no errors
-  alarm_actions      = [aws_sns_topic.alerts.arn]
-  ok_actions         = [aws_sns_topic.alerts.arn]
+  alarm_actions      = [local.base.alerts_topic_arn]
+  ok_actions         = [local.base.alerts_topic_arn]
 }
 
 # --- Dashboard --------------------------------------------------------------
@@ -155,9 +141,9 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "Where are the app logs? Latest scans and errors (log group ${aws_cloudwatch_log_group.app.name})"
+          title  = "Where are the app logs? Latest scans and errors (log group ${local.base.log_group_name})"
           region = var.region
-          query  = "SOURCE '${aws_cloudwatch_log_group.app.name}' | fields @timestamp, @logStream, @message | filter @message like /scan score|ERROR|Database unavailable/ | sort @timestamp desc | limit 50"
+          query  = "SOURCE '${local.base.log_group_name}' | fields @timestamp, @logStream, @message | filter @message like /scan score|ERROR|Database unavailable/ | sort @timestamp desc | limit 50"
           view   = "table"
         }
       },

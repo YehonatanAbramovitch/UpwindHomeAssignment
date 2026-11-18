@@ -10,8 +10,8 @@ output "dashboard_url" {
 }
 
 output "log_group" {
-  description = "Where the app logs are, in CloudWatch Logs"
-  value       = aws_cloudwatch_log_group.app.name
+  description = "Where the app logs are, in CloudWatch Logs (created by infra/base)"
+  value       = local.base.log_group_name
 }
 
 output "code_bucket" {

@@ -1,3 +1,0 @@
-# Copy this file to terraform.tfvars and fill in your own value.
-# terraform.tfvars is git-ignored, so the address does not reach GitHub.
-alert_email = "you@example.com"

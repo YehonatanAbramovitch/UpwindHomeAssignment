@@ -21,7 +21,7 @@ variable "availability_zones" {
 }
 
 variable "alert_email" {
-  description = "Email address for the budget alerts. Set it in terraform.tfvars (not in Git)."
+  description = "Email address for the budget and alarm emails. Set it in terraform.tfvars (not in Git)."
   type        = string
 }
 
@@ -29,4 +29,10 @@ variable "monthly_budget_usd" {
   description = "Monthly cost after which the budget alert emails are sent (at 50% and 100%)."
   type        = number
   default     = 10
+}
+
+variable "log_retention_days" {
+  description = "How long CloudWatch keeps the app logs."
+  type        = number
+  default     = 30
 }

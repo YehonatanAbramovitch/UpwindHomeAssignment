@@ -36,7 +36,7 @@ resource "aws_launch_template" "servers" {
     database_name           = local.base.database_name
     database_user           = local.base.database_username
     database_password_param = local.base.database_password_parameter
-    log_group               = aws_cloudwatch_log_group.app.name
+    log_group               = local.base.log_group_name
   }))
 
   # The provider's default tags do not reach instances that the Auto Scaling
