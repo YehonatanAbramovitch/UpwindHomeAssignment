@@ -109,7 +109,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         stat   = "Sum"
         metrics = [
           ["AWS/ApplicationELB", "HTTPCode_Target_2XX_Count", "TargetGroup", local.target, "LoadBalancer", local.alb, { label = "2xx success" }],
-          ["AWS/ApplicationELB", "HTTPCode_Target_4XX_Count", "TargetGroup", local.target, "LoadBalancer", local.alb, { label = "4xx rejected input" }],
+          ["AWS/ApplicationELB", "HTTPCode_Target_4XX_Count", "TargetGroup", local.target, "LoadBalancer", local.alb, { label = "4xx client error" }],
           ["AWS/ApplicationELB", "HTTPCode_Target_5XX_Count", "TargetGroup", local.target, "LoadBalancer", local.alb, { label = "5xx app error" }],
           ["AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count", "LoadBalancer", local.alb, { label = "5xx from the load balancer" }],
         ]
