@@ -49,7 +49,7 @@ resource "aws_cloudwatch_metric_alarm" "healthy_servers" {
 # The app itself returns errors (5xx), even though the servers are up.
 resource "aws_cloudwatch_metric_alarm" "server_errors" {
   alarm_name          = "${var.project}-server-errors"
-  alarm_description   = "More than 5 responses with a 5xx code from the web servers in a minute"
+  alarm_description   = "The web servers returned at least one 5xx response in a minute"
   namespace           = "AWS/ApplicationELB"
   metric_name         = "HTTPCode_Target_5XX_Count"
   dimensions          = local.alb_dimensions
@@ -57,10 +57,12 @@ resource "aws_cloudwatch_metric_alarm" "server_errors" {
   period              = 60
   evaluation_periods  = 1
   comparison_operator = "GreaterThanThreshold"
-  threshold           = 5
-  treat_missing_data  = "notBreaching" # no errors reported means no errors
-  alarm_actions       = [aws_sns_topic.alerts.arn]
-  ok_actions          = [aws_sns_topic.alerts.arn]
+  # From the first error: traffic is low, and every app 5xx means something is
+  # really wrong (a bug, or the database is unavailable).
+  threshold          = 0
+  treat_missing_data = "notBreaching" # no errors reported means no errors
+  alarm_actions      = [aws_sns_topic.alerts.arn]
+  ok_actions         = [aws_sns_topic.alerts.arn]
 }
 
 # --- Dashboard --------------------------------------------------------------
