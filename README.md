@@ -236,7 +236,7 @@ If the app process itself crashes, systemd restarts it within 3 seconds, before 
 Expected total for the whole project: a few dollars out of the $100 credit.\
 The servers and the load balancer exist only while working, and RDS is stopped between sessions.\
 A $10 monthly budget sends an email at $5 and $10.\
-Cost so far (19 November, after two days of work): $0.46.
+Cost so far (19 November): $0.46.
 
 <a href="docs/screenshots/cost.png"><img src="docs/screenshots/cost.png" width="100%" alt="Cost and usage: $0.46 this month"></a>
 
