@@ -81,12 +81,10 @@ Upload a file (in Gmail: *More* (⋮), then *Download message*) or paste the ema
 The history page lists earlier scans; the email body is never stored.\
 The footer shows which server answered.
 
-<p>
-  <a href="docs/screenshots/web-scan-page.png"><img src="docs/screenshots/web-scan-page.png" width="49%" alt="Scan page"></a>
-  <a href="docs/screenshots/web-history.png"><img src="docs/screenshots/web-history-wide.png" width="49%" alt="Scan history"></a>
-</p>
 <p align="center">
-  <a href="docs/screenshots/web-scan-result.png"><img src="docs/screenshots/web-scan-result.png" width="50%" alt="Scan result"></a>
+  <a href="docs/screenshots/web-scan-page.png"><img src="docs/screenshots/web-scan-page.png" width="32%" align="middle" alt="Scan page"></a>
+  <a href="docs/screenshots/web-scan-result.png"><img src="docs/screenshots/web-scan-result.png" width="22%" align="middle" alt="Scan result"></a>
+  <a href="docs/screenshots/web-history.png"><img src="docs/screenshots/web-history-wide.png" width="32%" align="middle" alt="Scan history"></a>
 </p>
 
 ---
