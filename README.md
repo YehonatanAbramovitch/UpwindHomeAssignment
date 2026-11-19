@@ -212,12 +212,12 @@ If the app process itself crashes, systemd restarts it within 3 seconds, before 
 
 | Symptom | Where to look |
 |---|---|
-| A server does not pass `/health` | Its `cloud-init` log stream (the last line shows where the set-up stopped), then its `app` stream, then Session Manager: `systemctl status phishing-detector` |
+| A server does not pass `/health` | Its `cloud-init` log stream (a finished set-up ends with "Phishing detector set-up finished."; otherwise the last lines show where it stopped), then its `app` stream, then Session Manager: `systemctl status phishing-detector` |
 | The site returns 502 or 503 | The target group: how many servers are healthy.<br>On the dashboard: "5xx from the load balancer" |
 | The app returns 5xx errors | The server errors alarm, and `ERROR` lines in the `app` log streams |
 | No history, and the site shows a warning | The RDS status (stopped or starting?), the database connections graph, and "Database unavailable" in the logs |
 | The site is slow | The response time graph, and the CPU and memory graphs |
-| `terraform apply` fails | The Terraform error message, and the Auto Scaling group's *Activity* history |
+| `terraform apply` fails | The Terraform error message; if servers fail to launch, also the Auto Scaling group's *Activity* history |
 
 ### Key decisions
 
