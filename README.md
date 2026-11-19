@@ -14,6 +14,7 @@ It is deployed on AWS with Terraform: two EC2 instances behind an Application Lo
   - [Deploy](#deploy)
   - [Monitoring](#monitoring)
   - [Failover test](#failover-test)
+  - [Troubleshooting](#troubleshooting)
   - [Key decisions](#key-decisions)
   - [Known limitations](#known-limitations)
   - [Cost](#cost)
@@ -48,6 +49,10 @@ python -m pytest
 
 The scan history is kept in a local SQLite file (`history.db`).\
 `samples/` has six made-up emails, from legitimate (score 0) to phishing (score 100).
+
+Example output:
+
+<a href="docs/screenshots/cli-output.png"><img src="docs/screenshots/cli-output.png" width="70%" alt="Command-line report for samples/suspicious_delivery.txt"></a>
 
 ### How detection works
 
@@ -202,6 +207,17 @@ The alarm matters most when the automatic fix does not work, unlike here.
 <a href="docs/screenshots/failover-ok-email.png"><img src="docs/screenshots/failover-ok-email.png" width="100%" alt="OK email"></a>
 
 If the app process itself crashes, systemd restarts it within 3 seconds, before the load balancer notices.
+
+### Troubleshooting
+
+| Symptom | Where to look |
+|---|---|
+| A server does not pass `/health` | Its `cloud-init` log stream (the last line shows where the set-up stopped), then its `app` stream, then Session Manager: `systemctl status phishing-detector` |
+| The site returns 502 or 503 | The target group: how many servers are healthy.<br>On the dashboard: "5xx from the load balancer" |
+| The app returns 5xx errors | The server errors alarm, and `ERROR` lines in the `app` log streams |
+| No history, and the site shows a warning | The RDS status (stopped or starting?), the database connections graph, and "Database unavailable" in the logs |
+| The site is slow | The response time graph, and the CPU and memory graphs |
+| `terraform apply` fails | The Terraform error message, and the Auto Scaling group's *Activity* history |
 
 ### Key decisions
 
